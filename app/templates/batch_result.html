@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Batch Prediction Result</title>
+</head>
+<body style="background:#0d1117;color:white;font-family:Segoe UI;padding:40px">
+
+<h2>📊 Company Attrition Summary</h2>
+
+<ul>
+    <li>Total Employees Analyzed: <b>{{ total }}</b></li>
+    <li style="color:#f85149">Likely to Leave: <b>{{ leave_count }}</b></li>
+    <li style="color:#3fb950">Likely to Stay: <b>{{ stay_count }}</b></li>
+</ul>
+
+<h3>📈 Attrition Risk by Age Group</h3>
+{{ stage_summary|safe }}
+
+<h3>👥 Sample Employee Predictions</h3>
+{{ table|safe }}
+
+<a href="/batch_predict" style="color:#58a6ff">⬅ Upload Another File</a>
+
+</body>
+</html>

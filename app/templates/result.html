@@ -1,92 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>HR Attrition Prediction Result</title>
-  <link href="/static/image_hr.webp" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: hsl(216, 28%, 7%);
-      background-image: url("/static/image_hr.webp");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      height: 100vh;
-      margin: 0;
+    <title>Employee Attrition Explanation</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            padding: 40px;
+        }
 
-      display: flex;
-      justify-content: flex-start;  /* Align left */
-      align-items: center;          /* Center vertically */
-      padding-left: 190px;           /* Distance from left */
-    }
+        .box {
+            max-width: 520px;
+            margin: auto;
+            background: #161b22;
+            padding: 30px;
+            border-radius: 14px;
+        }
 
-    .result-box {
-      background-color: rgba(255, 255, 255, 0.96);
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(199, 225, 34, 0.6);
-      max-width: 420px;
-      width: 100%;
-      backdrop-filter: blur(4px);
-    }
+        h2 {
+            text-align: center;
+        }
 
-    .result-box h2 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 20px;
-      font-size: 24px;
-    }
+        .status {
+            text-align: center;
+            font-size: 20px;
+            margin: 15px 0;
+        }
 
-    .result-msg {
-      font-size: 20px;
-      color: #dc3545;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 20px;
-    }
+        .risk {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
 
-    .info {
-      font-size: 16px;
-      color: #444;
-      background-color: #f0f0f0;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 25px;
-    }
+        .high { color: #f85149; }
+        .medium { color: #f0883e; }
+        .low { color: #3fb950; }
 
-    .info p {
-      margin: 8px 0;
-    }
+        ul {
+            line-height: 1.8;
+        }
 
-    .btn {
-      display: inline-block;
-      width: 100%;
-      background-color: #2c3e50;
-      color: white;
-      padding: 12px;
-      font-size: 16px;
-      text-decoration: none;
-      border-radius: 6px;
-    }
+        .card {
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
 
-    .btn:hover {
-      background-color: #1a252f;
-    }
-  </style>
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: #58a6ff;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="result-box">
-    <h2>📊 Prediction Result</h2>
-    <p class="result-msg">{{ result }}</p>
 
-    <div class="info">
-      <p><strong>Age:</strong> {{ age }}</p>
-      <p><strong>Monthly Income:</strong> ₹{{ income }}</p>
-      <p><strong>OverTime:</strong> {{ overtime }}</p>
+<div class="box">
+    <h2>📊 Employee Attrition Result</h2>
+
+    <p class="status">{{ result }}</p>
+
+    <p class="risk {{ risk_level|lower }}">
+        Risk Level: {{ risk_level }}
+    </p>
+
+    <div class="card">
+        <h3>❓ Why this prediction?</h3>
+        <ul>
+            {% for reason in reasons %}
+            <li>{{ reason }}</li>
+            {% endfor %}
+        </ul>
     </div>
 
-    <a href="/" class="btn">🔁 Try Another Prediction</a>
-  </div>
+    <div class="card">
+        <h3>👤 Employee Details</h3>
+        <p><strong>Age:</strong> {{ age }}</p>
+        <p><strong>Monthly Income:</strong> ₹{{ income }}</p>
+        <p><strong>OverTime:</strong> {{ overtime }}</p>
+    </div>
+
+    <a href="/dashboard">📊 View HR Dashboard</a>
+    <a href="/">🔁 Check Another Employee</a>
+</div>
+<form action="/what_if" method="POST">
+    <input type="hidden" name="age" value="{{ age }}">
+    <input type="hidden" name="income" value="{{ income }}">
+    <input type="hidden" name="hours_day" value="{{ hours_day }}">
+    <input type="hidden" name="hours_week" value="{{ hours_week }}">
+
+    <button style="margin-top:15px; width:100%; padding:10px;">
+        🔮 What if we reduce working hours?
+    </button>
+</form>
+<form action="/what_if_salary" method="POST">
+  <input type="hidden" name="age" value="{{ age }}">
+  <input type="hidden" name="income" value="{{ income }}">
+  <input type="hidden" name="hours_day" value="{{ hours_day }}">
+  <input type="hidden" name="hours_week" value="{{ hours_week }}">
+  <button>💰 What if salary is increased?</button>
+</form>
 </body>
 </html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Single Employee Prediction</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0d1117;
+            color: white;
+            padding: 40px;
+        }
+        .box {
+            max-width: 420px;
+            margin: auto;
+            background: #161b22;
+            padding: 30px;
+            border-radius: 14px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 8px;
+            border: none;
+        }
+        button {
+            margin-top: 25px;
+            background: #238636;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        a {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #58a6ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>👤 Single Employee Attrition Prediction</h2>
+
+    <form action="/predict" method="POST">
+
+        <label>Age</label>
+        <input type="number" name="age" required>
+
+        <label>Monthly Income</label>
+        <input type="number" name="income" required>
+
+        <label>Hours Worked Per Day</label>
+        <input type="number" name="hours_day" step="0.5" required>
+
+        <label>Hours Worked Per Week</label>
+        <input type="number" name="hours_week" step="1" required>
+
+        <button type="submit">🔍 Predict</button>
+    </form>
+
+    <a href="/">⬅ Back to Home</a>
+</div>
+
+</body>
+</html>

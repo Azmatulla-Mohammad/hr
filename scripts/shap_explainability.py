@@ -1,39 +1,83 @@
 # 04_shap_explainability.py
 # Author: Azmatulla Mohammad
-# Purpose: Generate SHAP summary plot using saved logistic model with shape check
+# Purpose: SHAP Explainability using LinearExplainer (CORRECT for Logistic Regression)
 
 import pandas as pd
 import shap
 import matplotlib.pyplot as plt
 import pickle
+import os
 
-# Load data
+# -----------------------------
+# Load cleaned dataset
+# -----------------------------
 df = pd.read_csv("data/cleaned_hr_data.csv")
 X = df.drop("Attrition", axis=1)
 
-# Load model
+# -----------------------------
+# Load trained model & scaler
+# -----------------------------
 with open("models/model.pkl", "rb") as f:
     model = pickle.load(f)
 
-# Use KernelExplainer with 100-row background
-background = X.sample(n=100, random_state=42)
-explainer = shap.KernelExplainer(model.predict_proba, background)
+with open("models/scaler.pkl", "rb") as f:
+    scaler = pickle.load(f)
 
-# Explain predictions on 100 rows
-X_sample = X.iloc[:100, :]
-shap_values = explainer.shap_values(X_sample)
+# -----------------------------
+# Scale data (same as training)
+# -----------------------------
+X_scaled = pd.DataFrame(
+    scaler.transform(X),
+    columns=X.columns
+)
 
-# Check shape alignment
-print(f"SHAP output type: {type(shap_values)}")
-if isinstance(shap_values, list):
-    print(f"SHAP values[1] shape: {shap_values[1].shape}")
-    print(f"X_sample shape: {X_sample.shape}")
-    shap.summary_plot(shap_values[1], X_sample, show=False)
-else:
-    print(f"SHAP shape: {shap_values.shape}")
-    shap.summary_plot(shap_values, X_sample, show=False)
+# -----------------------------
+# SHAP Linear Explainer
+# -----------------------------
+explainer = shap.LinearExplainer(
+    model,
+    X_scaled,
+    feature_perturbation="interventional"
+)
 
-# Save plot
+# -----------------------------
+# Compute SHAP values
+# -----------------------------
+shap_values = explainer.shap_values(X_scaled)
+
+# -----------------------------
+# Output directory
+# -----------------------------
+os.makedirs("report", exist_ok=True)
+
+# -----------------------------
+# SHAP Beeswarm Plot
+# -----------------------------
+shap.summary_plot(
+    shap_values,
+    X_scaled,
+    show=False
+)
+plt.title("SHAP Summary Plot – Employee Attrition")
 plt.tight_layout()
-plt.savefig("app/shap_summary_plot.png", dpi=300)
-print("✅ SHAP summary plot saved to app/shap_summary_plot.png")
+plt.savefig("report/shap_summary_beeswarm.png", dpi=300)
+plt.close()
+
+# -----------------------------
+# SHAP Feature Importance (Bar)
+# -----------------------------
+shap.summary_plot(
+    shap_values,
+    X_scaled,
+    plot_type="bar",
+    show=False
+)
+plt.title("SHAP Feature Importance – Employee Attrition")
+plt.tight_layout()
+plt.savefig("report/shap_feature_importance.png", dpi=300)
+plt.close()
+
+print("✅ SHAP explainability completed successfully")
+print("📊 Generated:")
+print("   - report/shap_summary_beeswarm.png")
+print("   - report/shap_feature_importance.png")

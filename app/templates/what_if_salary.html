@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>What-If Salary Increase</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0d1117;
+            color: white;
+            padding: 40px;
+        }
+        .box {
+            max-width: 520px;
+            margin: auto;
+            background: #161b22;
+            padding: 30px;
+            border-radius: 14px;
+        }
+        .card {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        .red {
+            background: #3b0d0d;
+        }
+        .green {
+            background: #0d3b1a;
+        }
+        a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>💰 What-If Analysis: Salary Increase</h2>
+
+    <div class="card red">
+        <h3>Before Salary Increase</h3>
+        <p><strong>Monthly Income:</strong> ₹{{ old_income }}</p>
+        <p><strong>Prediction:</strong> {{ before }} ({{ before_conf }}%)</p>
+    </div>
+
+    <div class="card green">
+        <h3>After 20% Salary Increase</h3>
+        <p><strong>New Monthly Income:</strong> ₹{{ new_income }}</p>
+        <p><strong>Prediction:</strong> {{ after }} ({{ after_conf }}%)</p>
+    </div>
+
+    <br>
+    <a href="/">⬅ Back to Home</a>
+</div>
+
+</body>
+</html>

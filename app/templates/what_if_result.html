@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>What-If Analysis</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0d1117;
+            color: white;
+            padding: 40px;
+        }
+        .box {
+            max-width: 520px;
+            margin: auto;
+            background: #161b22;
+            padding: 30px;
+            border-radius: 14px;
+        }
+        .card {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .red { background: #3b0d0d; }
+        .green { background: #0d3b1a; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>🔮 What-If Attrition Analysis</h2>
+
+    <div class="card red">
+        <h3>Before Reducing Hours</h3>
+        <p>Daily Hours: {{ original_hours_day }}</p>
+        <p>Weekly Hours: {{ original_hours_week }}</p>
+        <p><b>Prediction:</b> {{ original_label }} ({{ original_conf }}%)</p>
+    </div>
+
+    <div class="card green">
+        <h3>After Reducing Hours</h3>
+        <p>Daily Hours: {{ reduced_hours_day }}</p>
+        <p>Weekly Hours: {{ reduced_hours_week }}</p>
+        <p><b>Prediction:</b> {{ new_label }} ({{ new_conf }}%)</p>
+    </div>
+
+    <a href="/" style="color:#58a6ff;">⬅ Back to Home</a>
+</div>
+
+</body>
+</html>

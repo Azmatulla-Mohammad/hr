@@ -1,92 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>HR Attrition Predictor</title>
+    <title>HR Attrition Prediction System</title>
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #0d1117;
-            background-image: url("/static/image_hr.webp");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
             height: 100vh;
             margin: 0;
-
             display: flex;
-            justify-content: flex-start; /* 👈 Align to left */
-            align-items: center;         /* 👈 Vertically center */
-            padding-left: 190px;          /* 👈 Add spacing from the left edge */
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            background-color: rgba(200, 255, 255, 0.95);
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(199, 225, 34, 0.6);
-            width: 100%;
-            max-width: 420px;
-            backdrop-filter: blur(4px);
+            background: #161b22;
+            padding: 40px;
+            border-radius: 16px;
+            width: 420px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
         }
 
         h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
             margin-bottom: 10px;
+        }
+
+        p {
+            color: #9da7b3;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            display: block;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            text-decoration: none;
             font-weight: bold;
-            color: #333;
+            transition: 0.3s;
         }
 
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
+        .single {
+            background: rgba(63,185,80,0.15);
+            color: #3fb950;
         }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #2c3e50;
-            color: white;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        .batch {
+            background: rgba(88,166,255,0.15);
+            color: #58a6ff;
         }
 
-        button:hover {
-            background-color: #1a252f;
+        .option:hover {
+            transform: scale(1.03);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>🧠 HR Attrition Predictor</h2>
-        <form action="/predict" method="POST">
-            <label for="age">Age:</label>
-            <input type="number" name="age" min="18" max="60" required>
 
-            <label for="income">Monthly Income:</label>
-            <input type="number" name="income" min="1000" placeholder="Enter income (no upper limit)" required>
+<div class="container">
+    <h2>🧠 HR Attrition Prediction</h2>
+    <p>Choose how you want to analyze employee attrition</p>
 
-            <label for="overtime">OverTime:</label>
-            <select name="overtime" required>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
-            
+    <a href="/single" class="option single">
+        👤 Predict for Single Employee
+    </a>
 
-            <button type="submit">🔍 Predict</button>
-        </form>
-    </div>
+    <a href="/batch_predict" class="option batch">
+        📂 Predict for Company (CSV Upload)
+    </a>
+</div>
+
 </body>
 </html>
