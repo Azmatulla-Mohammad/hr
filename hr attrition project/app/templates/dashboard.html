@@ -152,9 +152,10 @@ figcaption {
     <h2>🔍 Executive Summary</h2>
     <div class="kpi-box">
         <div class="kpi">
-            <h2>{{ total_employees }}</h2>
-            <p>Total Employees</p>
-        </div>
+    <h2>{{ total_employees or "N/A" }}</h2>
+    <p>Total Employees</p>
+    </div>
+
         <div class="kpi">
             <h2>{{ attrition_rate }}%</h2>
             <p>Attrition Rate</p>
