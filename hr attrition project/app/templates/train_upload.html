@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Train Model - Company Data Upload</title>
+    <style>
+        :root {
+            --bg: #0b1117;
+            --panel: #121821;
+            --panel-border: #1f2a37;
+            --text: #e6edf3;
+            --muted: #9aa4b2;
+            --accent: #58a6ff;
+            --success: #3fb950;
+            --warning: #f97316;
+            --error: #f87171;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 60%);
+            color: var(--text);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+        }
+
+        .container {
+            width: min(720px, 100%);
+            background: rgba(18, 24, 33, 0.92);
+            border: 1px solid var(--panel-border);
+            padding: 36px;
+            border-radius: 20px;
+            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .box {
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: 14px;
+            background: #0d141d;
+            border: 1px solid var(--panel-border);
+        }
+
+        .error {
+            margin-top: 12px;
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            margin-bottom: 16px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #2b3645;
+            background: #0b1117;
+            color: var(--text);
+        }
+
+        button {
+            background: var(--warning);
+            color: #0b1117;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .secondary {
+            background: var(--success);
+            color: #0b1117;
+        }
+
+        .links {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .links a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🏢 Train the Model with Company Data</h2>
+    <p>
+        Upload your company CSV file so the model learns from your data.
+        Required columns: <strong>Age</strong>, <strong>MonthlyIncome</strong>,
+        <strong>Attrition</strong>, and either <strong>OverTime</strong> or both
+        <strong>HoursPerDay</strong> and <strong>HoursPerWeek</strong>.
+    </p>
+    <div class="box">
+        <form method="POST" enctype="multipart/form-data">
+            <label for="file">Choose CSV file</label>
+            <input type="file" id="file" name="file" accept=".csv" />
+            <button type="submit">Train Model</button>
+        </form>
+        <form method="POST" style="margin-top: 12px;">
+            <input type="hidden" name="use_default" value="1" />
+            <button type="submit" class="secondary">Use Default Sample Data</button>
+        </form>
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+    </div>
+    <div class="links">
+        <a href="/">← Back to Home</a>
+    </div>
+</div>
+</body>
+</html>
