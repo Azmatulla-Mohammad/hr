@@ -111,6 +111,123 @@ def _normalize_overtime(values):
 
 
 def train_model_from_df(df):
+    df = df.copy()
+    df.columns = [str(col).strip() for col in df.columns]
+
+    required_base = {"Age", "MonthlyIncome", "Attrition"}
+    missing = sorted(required_base - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required columns: {', '.join(missing)}")
+
+    if "OverTime" in df.columns:
+        overtime_values = _normalize_overtime(df["OverTime"])
+        if any(value is None for value in overtime_values):
+            raise ValueError("OverTime column must contain Yes/No or 1/0 values.")
+        df["OverTime"] = overtime_values
+    else:
+        hours_required = {"HoursPerDay", "HoursPerWeek"}
+        if hours_required.issubset(df.columns):
+            df["OverTime"] = ((df["HoursPerDay"] > 8) | (df["HoursPerWeek"] > 40)).astype(int)
+        else:
+            raise ValueError(
+                "Provide OverTime column or both HoursPerDay and HoursPerWeek columns."
+            )
+
+    attrition_values = _normalize_attrition(df["Attrition"])
+    if any(value is None for value in attrition_values):
+        raise ValueError("Attrition column must contain Yes/No, Leave/Stay, or 1/0 values.")
+
+    df["Attrition"] = attrition_values
+
+    training_features = ["Age", "MonthlyIncome", "OverTime"]
+    X = df[training_features]
+    y = df["Attrition"]
+
+    local_scaler = StandardScaler()
+    X_scaled = local_scaler.fit_transform(X)
+
+    local_model = LogisticRegression(max_iter=1000, class_weight="balanced")
+    local_model.fit(X_scaled, y)
+
+    return local_model, local_scaler, training_features, df
+
+
+def load_dashboard_data():
+    if (
+        training_metadata
+        and training_metadata.get("source") == "company"
+        and os.path.exists(COMPANY_DATA_PATH)
+    ):
+        return pd.read_csv(COMPANY_DATA_PATH)
+    return pd.read_csv(os.path.join(DATA_DIR, "cleaned_hr_data.csv"))
+
+TRAINING_METADATA_PATH = os.path.join(MODELS_DIR, "training_metadata.json")
+COMPANY_DATA_PATH = os.path.join(MODELS_DIR, "company_data.csv")
+
+
+def load_training_metadata():
+    if not os.path.exists(TRAINING_METADATA_PATH):
+        return None
+    try:
+        with open(TRAINING_METADATA_PATH, "r") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return None
+
+
+def save_training_metadata(metadata):
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    with open(TRAINING_METADATA_PATH, "w") as f:
+        json.dump(metadata, f)
+
+
+training_metadata = load_training_metadata()
+trained_with_company_data = (
+    training_metadata is not None and training_metadata.get("source") == "company"
+)
+
+
+def _normalize_attrition(values):
+    mapping = {
+        "yes": 1,
+        "leave": 1,
+        "1": 1,
+        "true": 1,
+        "no": 0,
+        "stay": 0,
+        "0": 0,
+        "false": 0,
+    }
+    normalized = []
+    for value in values:
+        if pd.isna(value):
+            normalized.append(None)
+            continue
+        key = str(value).strip().lower()
+        normalized.append(mapping.get(key))
+    return normalized
+
+
+def _normalize_overtime(values):
+    mapping = {
+        "yes": 1,
+        "true": 1,
+        "1": 1,
+        "no": 0,
+        "false": 0,
+        "0": 0,
+    }
+    normalized = []
+    for value in values:
+        if pd.isna(value):
+            normalized.append(None)
+            continue
+        key = str(value).strip().lower()
+        normalized.append(mapping.get(key))
+    return normalized
+
+
+def train_model_from_df(df):
     required_base = {"Age", "MonthlyIncome", "Attrition"}
     missing = sorted(required_base - set(df.columns))
     if missing:
@@ -1001,7 +1118,11 @@ def batch_predict():
     if request.method == "GET":
         return render_template("batch_upload.html")
 
+    if "file" not in request.files:
+        return render_template("batch_upload.html", error="Please upload a CSV file.")
+
     df = pd.read_csv(request.files["file"], sep=None, engine="python")
+    df.columns = [str(col).strip() for col in df.columns]
 
     # VALIDATION
     required_cols = {"Age", "MonthlyIncome"}
@@ -1049,13 +1170,21 @@ def batch_predict():
     leave_count = (df["Prediction"] == 1).sum()
     stay_count = (df["Prediction"] == 0).sum()
 
-    
+    age_bins = [0, 25, 35, 45, 55, 200]
+    age_labels = ["<25", "25-34", "35-44", "45-54", "55+"]
+    age_groups = pd.cut(df["Age"], bins=age_bins, labels=age_labels, right=False)
+    stage_summary = (
+        pd.crosstab(age_groups, df["PredictionLabel"])
+        .rename_axis("Age Group")
+        .reset_index()
+    )
 
     return render_template(
         "batch_result.html",
         total=total,
         leave_count=leave_count,
         stay_count=stay_count,
+        stage_summary=stage_summary.to_html(index=False),
         table=df.head(10).to_html(index=False)
     )
 @app.route("/what_if_salary", methods=["POST"])
