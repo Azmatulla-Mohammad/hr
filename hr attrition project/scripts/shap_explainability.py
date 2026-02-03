@@ -1,6 +1,4 @@
-# 04_shap_explainability.py
-# Author: Azmatulla Mohammad
-# Purpose: SHAP Explainability using LinearExplainer (CORRECT for Logistic Regression)
+
 
 import pandas as pd
 import shap
