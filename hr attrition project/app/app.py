@@ -88,13 +88,38 @@ def _normalize_attrition(values):
     return normalized
 
 
+def _normalize_overtime(values):
+    mapping = {
+        "yes": 1,
+        "true": 1,
+        "1": 1,
+        "no": 0,
+        "false": 0,
+        "0": 0,
+    }
+    normalized = []
+    for value in values:
+        if pd.isna(value):
+            normalized.append(None)
+            continue
+        key = str(value).strip().lower()
+        normalized.append(mapping.get(key))
+    return normalized
+
+
 def train_model_from_df(df):
     required_base = {"Age", "MonthlyIncome", "Attrition"}
     missing = sorted(required_base - set(df.columns))
     if missing:
         raise ValueError(f"Missing required columns: {', '.join(missing)}")
 
-    if "OverTime" not in df.columns:
+    df = df.copy()
+    if "OverTime" in df.columns:
+        overtime_values = _normalize_overtime(df["OverTime"])
+        if any(value is None for value in overtime_values):
+            raise ValueError("OverTime column must contain Yes/No or 1/0 values.")
+        df["OverTime"] = overtime_values
+    else:
         hours_required = {"HoursPerDay", "HoursPerWeek"}
         if hours_required.issubset(df.columns):
             df["OverTime"] = ((df["HoursPerDay"] > 8) | (df["HoursPerWeek"] > 40)).astype(int)
@@ -107,7 +132,6 @@ def train_model_from_df(df):
     if any(value is None for value in attrition_values):
         raise ValueError("Attrition column must contain Yes/No, Leave/Stay, or 1/0 values.")
 
-    df = df.copy()
     df["Attrition"] = attrition_values
 
     training_features = ["Age", "MonthlyIncome", "OverTime"]
@@ -153,7 +177,7 @@ def train():
         return render_template("train_upload.html", error="Please choose a CSV file.")
 
     try:
-        df = pd.read_csv(file)
+        df = pd.read_csv(file, sep=None, engine="python")
         model, scaler, feature_columns = train_model_from_df(df)
 
         os.makedirs(MODELS_DIR, exist_ok=True)
@@ -365,19 +389,37 @@ def batch_predict():
     if request.method == "GET":
         return render_template("batch_upload.html")
 
-    df = pd.read_csv(request.files["file"])
+    df = pd.read_csv(request.files["file"], sep=None, engine="python")
 
     # VALIDATION
-    required_cols = ["Age", "MonthlyIncome", "HoursPerDay", "HoursPerWeek"]
-    missing = [col for col in required_cols if col not in df.columns]
+    required_cols = {"Age", "MonthlyIncome"}
+    missing = sorted(required_cols - set(df.columns))
     if missing:
-        return f"Missing required columns: {missing}"
+        return render_template(
+            "batch_upload.html",
+            error=f"Missing required columns: {', '.join(missing)}",
+        )
 
-    # RULE-BASED OVERTIME
-    df["OverTime"] = (
-        (df["HoursPerDay"] > 8) |
-        (df["HoursPerWeek"] > 40)
-    ).astype(int)
+    if "OverTime" in df.columns:
+        overtime_values = _normalize_overtime(df["OverTime"])
+        if any(value is None for value in overtime_values):
+            return render_template(
+                "batch_upload.html",
+                error="OverTime column must contain Yes/No or 1/0 values.",
+            )
+        df["OverTime"] = overtime_values
+    else:
+        hours_required = {"HoursPerDay", "HoursPerWeek"}
+        if hours_required.issubset(df.columns):
+            df["OverTime"] = (
+                (df["HoursPerDay"] > 8) |
+                (df["HoursPerWeek"] > 40)
+            ).astype(int)
+        else:
+            return render_template(
+                "batch_upload.html",
+                error="Provide OverTime column or both HoursPerDay and HoursPerWeek columns.",
+            )
 
     # Build model input
     input_df = pd.DataFrame(
