@@ -390,6 +390,121 @@ def load_dashboard_data():
     return pd.read_csv(os.path.join(DATA_DIR, "cleaned_hr_data.csv"))
 
 TRAINING_METADATA_PATH = os.path.join(MODELS_DIR, "training_metadata.json")
+COMPANY_DATA_PATH = os.path.join(MODELS_DIR, "company_data.csv")
+
+
+def load_training_metadata():
+    if not os.path.exists(TRAINING_METADATA_PATH):
+        return None
+    try:
+        with open(TRAINING_METADATA_PATH, "r") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return None
+
+
+def save_training_metadata(metadata):
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    with open(TRAINING_METADATA_PATH, "w") as f:
+        json.dump(metadata, f)
+
+
+training_metadata = load_training_metadata()
+trained_with_company_data = (
+    training_metadata is not None and training_metadata.get("source") == "company"
+)
+
+
+def _normalize_attrition(values):
+    mapping = {
+        "yes": 1,
+        "leave": 1,
+        "1": 1,
+        "true": 1,
+        "no": 0,
+        "stay": 0,
+        "0": 0,
+        "false": 0,
+    }
+    normalized = []
+    for value in values:
+        if pd.isna(value):
+            normalized.append(None)
+            continue
+        key = str(value).strip().lower()
+        normalized.append(mapping.get(key))
+    return normalized
+
+
+def _normalize_overtime(values):
+    mapping = {
+        "yes": 1,
+        "true": 1,
+        "1": 1,
+        "no": 0,
+        "false": 0,
+        "0": 0,
+    }
+    normalized = []
+    for value in values:
+        if pd.isna(value):
+            normalized.append(None)
+            continue
+        key = str(value).strip().lower()
+        normalized.append(mapping.get(key))
+    return normalized
+
+
+def train_model_from_df(df):
+    required_base = {"Age", "MonthlyIncome", "Attrition"}
+    missing = sorted(required_base - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required columns: {', '.join(missing)}")
+
+    df = df.copy()
+    if "OverTime" in df.columns:
+        overtime_values = _normalize_overtime(df["OverTime"])
+        if any(value is None for value in overtime_values):
+            raise ValueError("OverTime column must contain Yes/No or 1/0 values.")
+        df["OverTime"] = overtime_values
+    else:
+        hours_required = {"HoursPerDay", "HoursPerWeek"}
+        if hours_required.issubset(df.columns):
+            df["OverTime"] = ((df["HoursPerDay"] > 8) | (df["HoursPerWeek"] > 40)).astype(int)
+        else:
+            raise ValueError(
+                "Provide OverTime column or both HoursPerDay and HoursPerWeek columns."
+            )
+
+    attrition_values = _normalize_attrition(df["Attrition"])
+    if any(value is None for value in attrition_values):
+        raise ValueError("Attrition column must contain Yes/No, Leave/Stay, or 1/0 values.")
+
+    df["Attrition"] = attrition_values
+
+    training_features = ["Age", "MonthlyIncome", "OverTime"]
+    X = df[training_features]
+    y = df["Attrition"]
+
+    local_scaler = StandardScaler()
+    X_scaled = local_scaler.fit_transform(X)
+
+    local_model = LogisticRegression(max_iter=1000, class_weight="balanced")
+    local_model.fit(X_scaled, y)
+
+    return local_model, local_scaler, training_features, df
+
+
+def load_dashboard_data():
+    if (
+        training_metadata
+        and training_metadata.get("source") == "company"
+        and os.path.exists(COMPANY_DATA_PATH)
+    ):
+        return pd.read_csv(COMPANY_DATA_PATH)
+    return pd.read_csv(os.path.join(DATA_DIR, "cleaned_hr_data.csv"))
+
+TRAINING_METADATA_PATH = os.path.join(MODELS_DIR, "training_metadata.json")
 
 
 def load_training_metadata():
@@ -514,16 +629,25 @@ def train():
     if request.method == "GET":
         return render_template("train_upload.html")
 
-    if "file" not in request.files:
+    use_default = request.form.get("use_default") == "1"
+    if not use_default and "file" not in request.files:
         return render_template("train_upload.html", error="Please upload a CSV file.")
 
-    file = request.files["file"]
-    if not file.filename:
+    file = request.files.get("file")
+    if not use_default and (file is None or not file.filename):
         return render_template("train_upload.html", error="Please choose a CSV file.")
 
     try:
-        df = pd.read_csv(file, sep=None, engine="python")
-        model, scaler, feature_columns = train_model_from_df(df)
+        if use_default:
+            df = pd.read_csv(os.path.join(DATA_DIR, "cleaned_hr_data.csv"))
+            filename = "cleaned_hr_data.csv"
+            source = "default"
+        else:
+            df = pd.read_csv(file, sep=None, engine="python")
+            filename = file.filename
+            source = "company"
+
+        model, scaler, feature_columns, trained_df = train_model_from_df(df)
 
         os.makedirs(MODELS_DIR, exist_ok=True)
         with open(os.path.join(MODELS_DIR, "model.pkl"), "wb") as f:
@@ -534,16 +658,44 @@ def train():
 
         with open(os.path.join(MODELS_DIR, "feature_columns.json"), "w") as f:
             json.dump(feature_columns, f)
+
+        if source == "company":
+            trained_df.to_csv(COMPANY_DATA_PATH, index=False)
+        elif os.path.exists(COMPANY_DATA_PATH):
+            os.remove(COMPANY_DATA_PATH)
+
         training_metadata = {
-            "rows": len(df),
-            "filename": file.filename,
+            "rows": len(trained_df),
+            "filename": filename,
+            "source": source,
         }
         save_training_metadata(training_metadata)
-        trained_with_company_data = True
+        trained_with_company_data = source == "company"
     except ValueError as exc:
         return render_template("train_upload.html", error=str(exc))
 
-    return render_template("train_result.html", total=len(df), filename=file.filename)
+    input_df = pd.DataFrame(
+        [[row.get(col, 0) for col in feature_columns] for _, row in trained_df.iterrows()],
+        columns=feature_columns
+    )
+    input_scaled = scaler.transform(input_df)
+    predictions = model.predict(input_scaled)
+    prediction_counts = pd.Series(predictions).map({0: "Stay", 1: "Leave"}).value_counts()
+
+    trained_df = trained_df.copy()
+    trained_df["Prediction"] = predictions
+    trained_df["PredictionLabel"] = trained_df["Prediction"].map({0: "Stay", 1: "Leave"})
+    trained_df["Confidence"] = model.predict_proba(input_scaled).max(axis=1) * 100
+
+    return render_template(
+        "train_result.html",
+        total=len(trained_df),
+        filename=filename,
+        source=source,
+        leave_count=int(prediction_counts.get("Leave", 0)),
+        stay_count=int(prediction_counts.get("Stay", 0)),
+        table=trained_df.head(10).to_html(index=False)
+    )
 
 # =====================================================
 # SINGLE EMPLOYEE FORM

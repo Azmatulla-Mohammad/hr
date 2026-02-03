@@ -3,24 +3,66 @@
 <head>
     <title>Training Complete</title>
     <style>
+        :root {
+            --bg: #f4f6fa;
+            --panel: #ffffff;
+            --panel-border: #e5e7eb;
+            --text: #0f172a;
+            --muted: #475569;
+            --accent: #1d4ed8;
+            --success: #15803d;
+            --shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: #0d1117;
-            color: #e6edf3;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             margin: 0;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
+        }
+
+        .nav {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            padding: 12px 0 24px;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
         }
 
         .container {
-            background: #161b22;
-            padding: 36px;
-            border-radius: 16px;
-            width: 480px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
         }
 
         h2 {
@@ -28,41 +70,116 @@
         }
 
         p {
-            color: #9da7b3;
+            color: var(--muted);
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .card strong {
+            display: block;
+            font-size: 20px;
+            margin-top: 4px;
+            color: var(--text);
+        }
+
+        .preview {
+            margin-top: 24px;
+            background: #f8fafc;
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 18px;
         }
 
         .actions {
             margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .actions a {
             display: inline-block;
-            margin: 8px;
             padding: 12px 16px;
             border-radius: 12px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            color: var(--accent);
+            background: #eff6ff;
         }
 
-        .single {
-            background: rgba(63,185,80,0.15);
-            color: #3fb950;
+        .primary {
+            color: #ffffff;
+            background: var(--accent);
         }
 
-        .batch {
-            background: rgba(88,166,255,0.15);
-            color: #58a6ff;
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h2>✅ Training Complete</h2>
-    <p>Model trained on {{ total }} rows from <strong>{{ filename }}</strong>.</p>
-    <div class="actions">
-        <a href="/single" class="single">👤 Predict Single Employee</a>
-        <a href="/batch_predict" class="batch">📂 Predict Batch Employees</a>
+<div class="page">
+    <div class="nav">
+        <div class="brand">ApexHR Analytics</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/train">Train Model</a>
+            <a href="/batch_predict">Batch Prediction</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
     </div>
+
+    <div class="container">
+        <h2>Training Complete</h2>
+        <p>
+            Model trained on {{ total }} rows from <strong>{{ filename }}</strong>
+            ({{ source }} data).
+        </p>
+        <div class="summary">
+            <div class="card">
+                Predicted likely to leave
+                <strong>{{ leave_count }}</strong>
+            </div>
+            <div class="card">
+                Predicted likely to stay
+                <strong>{{ stay_count }}</strong>
+            </div>
+            <div class="card">
+                Total employees analyzed
+                <strong>{{ total }}</strong>
+            </div>
+        </div>
+
+        <div class="preview">
+            <p style="margin-bottom: 8px;">Preview (first 10 rows)</p>
+            <div style="max-height: 220px; overflow: auto;">
+                {{ table | safe }}
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="/dashboard" class="primary">View Dashboard</a>
+            <a href="/single">Single Employee</a>
+            <a href="/batch_predict">Batch Employees</a>
+        </div>
+    </div>
+
+    <div class="footer">You can retrain at any time with updated company data.</div>
 </div>
 </body>
 </html>
