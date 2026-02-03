@@ -53,8 +53,26 @@
             color: #58a6ff;
         }
 
+        .train {
+            background: rgba(249,115,22,0.15);
+            color: #f97316;
+        }
+
         .option:hover {
             transform: scale(1.03);
+        }
+
+        .status {
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            color: #9da7b3;
+        }
+
+        .status span {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -62,7 +80,21 @@
 
 <div class="container">
     <h2>🧠 HR Attrition Prediction</h2>
-    <p>Choose how you want to analyze employee attrition</p>
+    <p>Upload company data to train the model, then predict attrition.</p>
+    <div class="status">
+        {% if trained_with_company_data %}
+            ✅ Model trained with your company data.
+            {% if training_metadata %}
+                <span>Last trained on {{ training_metadata.filename }} ({{ training_metadata.rows }} rows).</span>
+            {% endif %}
+        {% else %}
+            ⚠️ Model is using the default sample data.
+        {% endif %}
+    </div>
+
+    <a href="/train" class="option train">
+        🏢 Upload Company Data (Train Model)
+    </a>
 
     <a href="/single" class="option single">
         👤 Predict for Single Employee
