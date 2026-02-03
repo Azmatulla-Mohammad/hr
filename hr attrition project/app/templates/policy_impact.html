@@ -3,19 +3,68 @@
 <head>
     <title>Policy Impact Analysis</title>
     <style>
+        :root {
+            --bg: #f5f7fb;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.12);
+            --text: #0f172a;
+            --muted: #556070;
+            --card: #ffffff;
+            --border: #e6eaf2;
+            --shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: #0d1117;
-            color: white;
-            padding: 40px;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 24px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
         }
 
         .container {
-            max-width: 900px;
-            margin: auto;
-            background: #161b22;
-            padding: 30px;
-            border-radius: 14px;
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 36px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            animation: floatUp 0.7s ease both;
         }
 
         h2 {
@@ -24,78 +73,108 @@
         }
 
         .summary {
-            background: #0d3b1a;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 25px;
+            background: var(--accent-soft);
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 24px;
             text-align: center;
         }
 
         .summary strong {
             font-size: 20px;
-            color: #3fb950;
+            color: var(--accent);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
-            background: #0d1117;
+            background: #ffffff;
         }
 
         th, td {
-            border: 1px solid #30363d;
+            border: 1px solid var(--border);
             padding: 10px;
             text-align: center;
         }
 
         th {
-            background: #21262d;
+            background: #f8faff;
         }
 
         tr:nth-child(even) {
-            background: #161b22;
+            background: #f8faff;
         }
 
         .note {
             margin-top: 20px;
             font-size: 14px;
-            color: #8b949e;
+            color: var(--muted);
         }
 
         a {
             display: inline-block;
             margin-top: 25px;
-            color: #58a6ff;
+            color: var(--accent);
             text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
+<div class="page">
+    <div class="nav">
+        <div class="brand">ApexHR Analytics</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/train">Train Model</a>
+            <a href="/single">Single Prediction</a>
+            <a href="/batch_predict">Batch Prediction</a>
+        </div>
+    </div>
 
-<div class="container">
-    <h2>📊 HR Policy Impact Analysis</h2>
+    <div class="container">
+        <h2>Policy Impact Analysis</h2>
 
-    <div class="summary">
-        <p>
-            <strong>{{ count }}</strong> employees are predicted to stay
-            after applying the <b>reduced overtime policy</b>.
+        <div class="summary">
+            <p>
+                <strong>{{ count }}</strong> employees are predicted to stay
+                after applying the <b>reduced overtime policy</b>.
+            </p>
+        </div>
+
+        <h3>Sample of Impacted Employees</h3>
+
+        <div>
+            {{ table | safe }}
+        </div>
+
+        <p class="note">
+            This analysis helps HR teams identify how many employees could be retained
+            by implementing work-hour optimization policies.
         </p>
+
+        <a href="/">← Back to Home</a>
     </div>
 
-    <h3>👥 Sample of Impacted Employees</h3>
-
-    <div>
-        {{ table | safe }}
-    </div>
-
-    <p class="note">
-        💡 This analysis helps HR teams identify how many employees could be retained
-        by implementing work-hour optimization policies.
-    </p>
-
-    <a href="/">⬅ Back to Home</a>
+    <div class="footer">Policy impact simulations based on current model training.</div>
 </div>
-
 </body>
 </html>
