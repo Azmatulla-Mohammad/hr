@@ -3,74 +3,176 @@
 <head>
     <title>HR Attrition Prediction System</title>
     <style>
+        :root {
+            --bg: #f4f6fa;
+            --panel: #ffffff;
+            --panel-border: #e5e7eb;
+            --text: #0f172a;
+            --muted: #475569;
+            --accent: #1d4ed8;
+            --success: #15803d;
+            --warning: #b45309;
+            --shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: #0d1117;
-            color: #e6edf3;
-            height: 100vh;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             margin: 0;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
         }
 
         .container {
-            background: #161b22;
-            padding: 40px;
+            width: min(1100px, 100%);
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .title {
+            font-size: clamp(28px, 3vw, 34px);
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .status-card {
+            border: 1px solid var(--panel-border);
+            background: #f8fafc;
+            padding: 18px 20px;
             border-radius: 16px;
-            width: 420px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            font-size: 14px;
+            color: var(--muted);
         }
 
-        h2 {
-            margin-bottom: 10px;
+        .status-card strong {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text);
+            font-size: 15px;
         }
 
-        p {
-            color: #9da7b3;
-            margin-bottom: 30px;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-top: 28px;
         }
 
         .option {
-            display: block;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 12px;
-            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 20px;
+            border-radius: 18px;
             text-decoration: none;
-            font-weight: bold;
-            transition: 0.3s;
+            border: 1px solid var(--panel-border);
+            background: #ffffff;
+            transition: transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .single {
-            background: rgba(63,185,80,0.15);
-            color: #3fb950;
-        }
-
-        .batch {
-            background: rgba(88,166,255,0.15);
-            color: #58a6ff;
+        .option span {
+            font-size: 13px;
+            color: var(--muted);
         }
 
         .option:hover {
-            transform: scale(1.03);
+            transform: translateY(-3px);
+            border-color: rgba(29, 78, 216, 0.35);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .train {
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        .single {
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .batch {
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: #eff6ff;
+            color: var(--accent);
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🧠 HR Attrition Prediction</h2>
-    <p>Choose how you want to analyze employee attrition</p>
+    <div class="header">
+        <div>
+            <h2 class="title">🧠 HR Attrition Intelligence</h2>
+            <p class="subtitle">Train with your data and deliver consistent attrition forecasts.</p>
+        </div>
+        <div class="pill">Enterprise-ready workflow</div>
+    </div>
 
-    <a href="/single" class="option single">
-        👤 Predict for Single Employee
-    </a>
+    <div class="status-card">
+        <strong>Model status</strong>
+        {% if trained_with_company_data %}
+            ✅ Model trained with your company data.
+            {% if training_metadata %}
+                <div>Last trained on {{ training_metadata.filename }} ({{ training_metadata.rows }} rows).</div>
+            {% endif %}
+        {% else %}
+            ⚠️ Model is using the default sample data.
+        {% endif %}
+    </div>
 
-    <a href="/batch_predict" class="option batch">
-        📂 Predict for Company (CSV Upload)
-    </a>
+    <div class="grid">
+        <a href="/train" class="option train">
+            🏢 Upload Company Data
+            <span>Train a model tailored to your workforce.</span>
+        </a>
+
+        <a href="/single" class="option single">
+            👤 Single Employee Prediction
+            <span>Analyze individual attrition risk.</span>
+        </a>
+
+        <a href="/batch_predict" class="option batch">
+            📂 Batch Prediction
+            <span>Score a CSV list of employees.</span>
+        </a>
+    </div>
 </div>
 
 </body>

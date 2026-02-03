@@ -3,42 +3,77 @@
 <head>
     <title>Single Employee Prediction</title>
     <style>
+        :root {
+            --bg: #f4f6fa;
+            --panel: #ffffff;
+            --panel-border: #e5e7eb;
+            --text: #0f172a;
+            --muted: #475569;
+            --accent: #1d4ed8;
+            --success: #15803d;
+            --shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: #0d1117;
-            color: white;
-            padding: 40px;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
         }
+
         .box {
-            max-width: 420px;
-            margin: auto;
-            background: #161b22;
-            padding: 30px;
-            border-radius: 14px;
+            width: min(560px, 100%);
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            padding: 36px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
         }
+
         label {
             display: block;
-            margin-top: 15px;
+            margin-top: 16px;
+            font-weight: 600;
         }
+
         input, button {
             width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            border-radius: 8px;
-            border: none;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 12px;
+            border: 1px solid #cbd5f5;
+            background: #ffffff;
+            color: var(--text);
         }
+
         button {
-            margin-top: 25px;
-            background: #238636;
-            color: white;
+            margin-top: 24px;
+            background: var(--accent);
+            border: none;
+            color: #ffffff;
             font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
         }
+
+        p {
+            color: var(--muted);
+        }
+
         a {
             display: block;
             margin-top: 20px;
             text-align: center;
-            color: #58a6ff;
+            color: var(--accent);
             text-decoration: none;
         }
     </style>
@@ -47,6 +82,7 @@
 
 <div class="box">
     <h2>👤 Single Employee Attrition Prediction</h2>
+    <p>Provide the employee details to generate an individual attrition forecast.</p>
 
     <form action="/predict" method="POST">
 
