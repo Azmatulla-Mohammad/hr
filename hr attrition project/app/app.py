@@ -9,6 +9,8 @@ matplotlib.use("Agg")  # Safe for Flask + Windows
 import matplotlib.pyplot as plt
 import seaborn as sns
 from flask import Flask, render_template, request
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 
 # =====================================================
 # PATH CONFIG
@@ -42,12 +44,161 @@ with open(os.path.join(MODELS_DIR, "scaler.pkl"), "rb") as f:
 with open(os.path.join(MODELS_DIR, "feature_columns.json"), "r") as f:
     feature_columns = json.load(f)
 
+TRAINING_METADATA_PATH = os.path.join(MODELS_DIR, "training_metadata.json")
+
+
+def load_training_metadata():
+    if not os.path.exists(TRAINING_METADATA_PATH):
+        return None
+    try:
+        with open(TRAINING_METADATA_PATH, "r") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return None
+
+
+def save_training_metadata(metadata):
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    with open(TRAINING_METADATA_PATH, "w") as f:
+        json.dump(metadata, f)
+
+
+training_metadata = load_training_metadata()
+trained_with_company_data = training_metadata is not None
+
+
+def _normalize_attrition(values):
+    mapping = {
+        "yes": 1,
+        "leave": 1,
+        "1": 1,
+        "true": 1,
+        "no": 0,
+        "stay": 0,
+        "0": 0,
+        "false": 0,
+    }
+    normalized = []
+    for value in values:
+        if pd.isna(value):
+            normalized.append(None)
+            continue
+        key = str(value).strip().lower()
+        normalized.append(mapping.get(key))
+    return normalized
+
+
+def _normalize_overtime(values):
+    mapping = {
+        "yes": 1,
+        "true": 1,
+        "1": 1,
+        "no": 0,
+        "false": 0,
+        "0": 0,
+    }
+    normalized = []
+    for value in values:
+        if pd.isna(value):
+            normalized.append(None)
+            continue
+        key = str(value).strip().lower()
+        normalized.append(mapping.get(key))
+    return normalized
+
+
+def train_model_from_df(df):
+    required_base = {"Age", "MonthlyIncome", "Attrition"}
+    missing = sorted(required_base - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing required columns: {', '.join(missing)}")
+
+    df = df.copy()
+    if "OverTime" in df.columns:
+        overtime_values = _normalize_overtime(df["OverTime"])
+        if any(value is None for value in overtime_values):
+            raise ValueError("OverTime column must contain Yes/No or 1/0 values.")
+        df["OverTime"] = overtime_values
+    else:
+        hours_required = {"HoursPerDay", "HoursPerWeek"}
+        if hours_required.issubset(df.columns):
+            df["OverTime"] = ((df["HoursPerDay"] > 8) | (df["HoursPerWeek"] > 40)).astype(int)
+        else:
+            raise ValueError(
+                "Provide OverTime column or both HoursPerDay and HoursPerWeek columns."
+            )
+
+    attrition_values = _normalize_attrition(df["Attrition"])
+    if any(value is None for value in attrition_values):
+        raise ValueError("Attrition column must contain Yes/No, Leave/Stay, or 1/0 values.")
+
+    df["Attrition"] = attrition_values
+
+    training_features = ["Age", "MonthlyIncome", "OverTime"]
+    X = df[training_features]
+    y = df["Attrition"]
+
+    local_scaler = StandardScaler()
+    X_scaled = local_scaler.fit_transform(X)
+
+    local_model = LogisticRegression(max_iter=1000, class_weight="balanced")
+    local_model.fit(X_scaled, y)
+
+    return local_model, local_scaler, training_features
+
 # =====================================================
 # HOME PAGE — MODE SELECTION
 # =====================================================
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template(
+        "index.html",
+        trained_with_company_data=trained_with_company_data,
+        training_metadata=training_metadata,
+    )
+
+
+@app.route("/train", methods=["GET", "POST"])
+def train():
+    global model
+    global scaler
+    global feature_columns
+    global trained_with_company_data
+    global training_metadata
+
+    if request.method == "GET":
+        return render_template("train_upload.html")
+
+    if "file" not in request.files:
+        return render_template("train_upload.html", error="Please upload a CSV file.")
+
+    file = request.files["file"]
+    if not file.filename:
+        return render_template("train_upload.html", error="Please choose a CSV file.")
+
+    try:
+        df = pd.read_csv(file, sep=None, engine="python")
+        model, scaler, feature_columns = train_model_from_df(df)
+
+        os.makedirs(MODELS_DIR, exist_ok=True)
+        with open(os.path.join(MODELS_DIR, "model.pkl"), "wb") as f:
+            pickle.dump(model, f)
+
+        with open(os.path.join(MODELS_DIR, "scaler.pkl"), "wb") as f:
+            pickle.dump(scaler, f)
+
+        with open(os.path.join(MODELS_DIR, "feature_columns.json"), "w") as f:
+            json.dump(feature_columns, f)
+        training_metadata = {
+            "rows": len(df),
+            "filename": file.filename,
+        }
+        save_training_metadata(training_metadata)
+        trained_with_company_data = True
+    except ValueError as exc:
+        return render_template("train_upload.html", error=str(exc))
+
+    return render_template("train_result.html", total=len(df), filename=file.filename)
 
 # =====================================================
 # SINGLE EMPLOYEE FORM
