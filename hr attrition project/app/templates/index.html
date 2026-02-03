@@ -3,171 +3,106 @@
 <head>
     <title>HR Attrition Prediction System</title>
     <style>
-        :root {
-            --bg: #0b1117;
-            --panel: #121821;
-            --panel-border: #1f2a37;
-            --text: #e6edf3;
-            --muted: #9aa4b2;
-            --accent: #58a6ff;
-            --success: #3fb950;
-            --warning: #f97316;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-            background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 60%);
-            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            height: 100vh;
             margin: 0;
-            min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 32px;
+            align-items: center;
         }
 
         .container {
-            width: min(960px, 100%);
-            background: rgba(18, 24, 33, 0.9);
-            border: 1px solid var(--panel-border);
-            border-radius: 20px;
+            background: #161b22;
             padding: 40px;
-            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            width: 420px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
         }
 
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            margin-bottom: 24px;
+        h2 {
+            margin-bottom: 10px;
         }
 
-        .title {
-            font-size: 28px;
-            margin: 0 0 8px 0;
-        }
-
-        .subtitle {
-            color: var(--muted);
-            margin: 0;
-        }
-
-        .status-card {
-            border: 1px solid var(--panel-border);
-            background: #0d141d;
-            padding: 16px 20px;
-            border-radius: 14px;
-            font-size: 14px;
-            color: var(--muted);
-        }
-
-        .status-card strong {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--text);
-            font-size: 15px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-top: 24px;
+        p {
+            color: #9da7b3;
+            margin-bottom: 30px;
         }
 
         .option {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 18px;
-            border-radius: 14px;
+            display: block;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            font-size: 16px;
             text-decoration: none;
-            border: 1px solid transparent;
-            transition: transform 0.2s ease, border 0.2s ease;
-        }
-
-        .option span {
-            font-size: 13px;
-            color: var(--muted);
-        }
-
-        .option:hover {
-            transform: translateY(-2px);
-            border-color: rgba(88, 166, 255, 0.35);
-        }
-
-        .train {
-            background: rgba(249, 115, 22, 0.12);
-            color: var(--warning);
+            font-weight: bold;
+            transition: 0.3s;
         }
 
         .single {
-            background: rgba(63, 185, 80, 0.12);
-            color: var(--success);
+            background: rgba(63,185,80,0.15);
+            color: #3fb950;
         }
 
         .batch {
-            background: rgba(88, 166, 255, 0.12);
-            color: var(--accent);
+            background: rgba(88,166,255,0.15);
+            color: #58a6ff;
         }
 
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            border-radius: 999px;
+        .train {
+            background: rgba(249,115,22,0.15);
+            color: #f97316;
+        }
+
+        .option:hover {
+            transform: scale(1.03);
+        }
+
+        .status {
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            color: #9da7b3;
+        }
+
+        .status span {
+            display: block;
+            margin-top: 4px;
             font-size: 12px;
-            background: rgba(88, 166, 255, 0.12);
-            color: var(--accent);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <div>
-            <h2 class="title">🧠 HR Attrition Intelligence</h2>
-            <p class="subtitle">Train with your data and deliver consistent attrition forecasts.</p>
-        </div>
-        <div class="pill">Enterprise-ready workflow</div>
-    </div>
-
-    <div class="status-card">
-        <strong>Model status</strong>
+    <h2>🧠 HR Attrition Prediction</h2>
+    <p>Upload company data to train the model, then predict attrition.</p>
+    <div class="status">
         {% if trained_with_company_data %}
             ✅ Model trained with your company data.
             {% if training_metadata %}
-                <div>Last trained on {{ training_metadata.filename }} ({{ training_metadata.rows }} rows).</div>
+                <span>Last trained on {{ training_metadata.filename }} ({{ training_metadata.rows }} rows).</span>
             {% endif %}
         {% else %}
             ⚠️ Model is using the default sample data.
         {% endif %}
     </div>
 
-    <div class="grid">
-        <a href="/train" class="option train">
-            🏢 Upload Company Data
-            <span>Train a model tailored to your workforce.</span>
-        </a>
+    <a href="/train" class="option train">
+        🏢 Upload Company Data (Train Model)
+    </a>
 
-        <a href="/single" class="option single">
-            👤 Single Employee Prediction
-            <span>Analyze individual attrition risk.</span>
-        </a>
+    <a href="/single" class="option single">
+        👤 Predict for Single Employee
+    </a>
 
-        <a href="/batch_predict" class="option batch">
-            📂 Batch Prediction
-            <span>Score a CSV list of employees.</span>
-        </a>
-    </div>
+    <a href="/batch_predict" class="option batch">
+        📂 Predict for Company (CSV Upload)
+    </a>
 </div>
 
 </body>
