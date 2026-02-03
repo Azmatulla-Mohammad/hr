@@ -90,14 +90,8 @@
     <div class="box">
         <form method="POST" enctype="multipart/form-data">
             <label for="file">Choose CSV file</label>
-            <input type="file" id="file" name="file" accept=".csv" />
+            <input type="file" id="file" name="file" accept=".csv" required />
             <button type="submit">Train Model</button>
-        </form>
-        <form method="POST" style="margin-top: 12px;">
-            <input type="hidden" name="use_default" value="1" />
-            <button type="submit" style="background:#3fb950;color:#0d1117;">
-                Use Default Sample Data
-            </button>
         </form>
         {% if error %}
             <div class="error">{{ error }}</div>

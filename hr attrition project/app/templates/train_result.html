@@ -58,25 +58,10 @@
 <body>
 <div class="container">
     <h2>✅ Training Complete</h2>
-    <p>
-        Model trained on {{ total }} rows from <strong>{{ filename }}</strong>
-        ({{ source }} data).
-    </p>
-    <p>
-        Predicted attrition on this data:
-        <strong>{{ leave_count }}</strong> likely to leave,
-        <strong>{{ stay_count }}</strong> likely to stay.
-    </p>
-    <div style="margin-top: 18px; text-align: left;">
-        <p style="margin-bottom: 8px;">Preview (first 10 rows):</p>
-        <div style="max-height: 220px; overflow: auto; background: #0d1117; padding: 8px; border-radius: 10px;">
-            {{ table | safe }}
-        </div>
-    </div>
+    <p>Model trained on {{ total }} rows from <strong>{{ filename }}</strong>.</p>
     <div class="actions">
         <a href="/single" class="single">👤 Predict Single Employee</a>
         <a href="/batch_predict" class="batch">📂 Predict Batch Employees</a>
-        <a href="/dashboard" class="batch">📊 View Dashboard</a>
     </div>
 </div>
 </body>
