@@ -389,19 +389,37 @@ def batch_predict():
     if request.method == "GET":
         return render_template("batch_upload.html")
 
-    df = pd.read_csv(request.files["file"])
+    df = pd.read_csv(request.files["file"], sep=None, engine="python")
 
     # VALIDATION
-    required_cols = ["Age", "MonthlyIncome", "HoursPerDay", "HoursPerWeek"]
-    missing = [col for col in required_cols if col not in df.columns]
+    required_cols = {"Age", "MonthlyIncome"}
+    missing = sorted(required_cols - set(df.columns))
     if missing:
-        return f"Missing required columns: {missing}"
+        return render_template(
+            "batch_upload.html",
+            error=f"Missing required columns: {', '.join(missing)}",
+        )
 
-    # RULE-BASED OVERTIME
-    df["OverTime"] = (
-        (df["HoursPerDay"] > 8) |
-        (df["HoursPerWeek"] > 40)
-    ).astype(int)
+    if "OverTime" in df.columns:
+        overtime_values = _normalize_overtime(df["OverTime"])
+        if any(value is None for value in overtime_values):
+            return render_template(
+                "batch_upload.html",
+                error="OverTime column must contain Yes/No or 1/0 values.",
+            )
+        df["OverTime"] = overtime_values
+    else:
+        hours_required = {"HoursPerDay", "HoursPerWeek"}
+        if hours_required.issubset(df.columns):
+            df["OverTime"] = (
+                (df["HoursPerDay"] > 8) |
+                (df["HoursPerWeek"] > 40)
+            ).astype(int)
+        else:
+            return render_template(
+                "batch_upload.html",
+                error="Provide OverTime column or both HoursPerDay and HoursPerWeek columns.",
+            )
 
     # Build model input
     input_df = pd.DataFrame(
