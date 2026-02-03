@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Training Complete</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: #161b22;
+            padding: 36px;
+            border-radius: 16px;
+            width: 480px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        p {
+            color: #9da7b3;
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        .actions a {
+            display: inline-block;
+            margin: 8px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .single {
+            background: rgba(63,185,80,0.15);
+            color: #3fb950;
+        }
+
+        .batch {
+            background: rgba(88,166,255,0.15);
+            color: #58a6ff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>✅ Training Complete</h2>
+    <p>
+        Model trained on {{ total }} rows from <strong>{{ filename }}</strong>
+        ({{ source }} data).
+    </p>
+    <p>
+        Predicted attrition on this data:
+        <strong>{{ leave_count }}</strong> likely to leave,
+        <strong>{{ stay_count }}</strong> likely to stay.
+    </p>
+    <div style="margin-top: 18px; text-align: left;">
+        <p style="margin-bottom: 8px;">Preview (first 10 rows):</p>
+        <div style="max-height: 220px; overflow: auto; background: #0d1117; padding: 8px; border-radius: 10px;">
+            {{ table | safe }}
+        </div>
+    </div>
+    <div class="actions">
+        <a href="/single" class="single">👤 Predict Single Employee</a>
+        <a href="/batch_predict" class="batch">📂 Predict Batch Employees</a>
+        <a href="/dashboard" class="batch">📊 View Dashboard</a>
+    </div>
+</div>
+</body>
+</html>
