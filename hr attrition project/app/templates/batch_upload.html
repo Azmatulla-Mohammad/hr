@@ -2,109 +2,26 @@
 <html>
 <head>
     <title>Batch Attrition Prediction</title>
-    <style>
-        :root {
-            --bg: #f4f6fa;
-            --panel: #ffffff;
-            --panel-border: #e5e7eb;
-            --text: #0f172a;
-            --muted: #475569;
-            --accent: #1d4ed8;
-            --error: #dc2626;
-            --shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 24px;
-        }
-
-        .container {
-            width: min(680px, 100%);
-            background: var(--panel);
-            border: 1px solid var(--panel-border);
-            border-radius: 24px;
-            padding: 36px;
-            box-shadow: var(--shadow);
-        }
-
-        h2 {
-            margin-top: 0;
-        }
-
-        p {
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        input[type="file"] {
-            width: 100%;
-            margin-top: 12px;
-            margin-bottom: 16px;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #cbd5f5;
-            background: #ffffff;
-            color: var(--text);
-        }
-
-        button {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: none;
-            background: var(--accent);
-            color: #ffffff;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .error {
-            margin-top: 14px;
-            color: var(--error);
-            font-weight: 600;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 18px;
-            color: var(--accent);
-            text-decoration: none;
-        }
-    </style>
 </head>
-<body>
-<div class="container">
-    <h2>📂 Upload Employee CSV</h2>
-    <p>Score a batch file and get attrition predictions for your workforce.</p>
+<body style="background:#0d1117;color:white;font-family:Segoe UI;padding:40px">
 
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".csv" required>
-        <button type="submit">Analyze Employees</button>
-    </form>
+<h2>📂 Upload Employee CSV</h2>
 
-    {% if error %}
-    <div class="error">
-      {{ error }}
-    </div>
-    {% endif %}
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv" required>
+    <br><br>
+    <button type="submit">🔍 Analyze Employees</button>
+</form>
 
-    <p>
-        CSV must contain: Age, MonthlyIncome, and either OverTime or both HoursPerDay and HoursPerWeek.
-    </p>
+{% if error %}
+<p style="margin-top:16px;color:#ff7b72">
+  {{ error }}
+</p>
+{% endif %}
 
-    <a href="/">← Back to Home</a>
-</div>
+<p style="margin-top:20px;color:#9da7b3">
+CSV must contain: Age, MonthlyIncome, and either OverTime or both HoursPerDay and HoursPerWeek
+</p>
+
 </body>
 </html>
