@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Train Model - Company Data Upload</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: #161b22;
+            padding: 36px;
+            border-radius: 16px;
+            width: 520px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #9da7b3;
+            line-height: 1.5;
+        }
+
+        .box {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #0f172a;
+            border: 1px dashed #30363d;
+        }
+
+        .error {
+            margin-top: 12px;
+            color: #f87171;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        button {
+            background: #f97316;
+            color: #0d1117;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .links {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .links a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🏢 Train the Model with Company Data</h2>
+    <p>
+        Upload your company CSV file so the model learns from your data.
+        Required columns: <strong>Age</strong>, <strong>MonthlyIncome</strong>,
+        <strong>Attrition</strong>, and either <strong>OverTime</strong> or both
+        <strong>HoursPerDay</strong> and <strong>HoursPerWeek</strong>.
+    </p>
+    <div class="box">
+        <form method="POST" enctype="multipart/form-data">
+            <label for="file">Choose CSV file</label>
+            <input type="file" id="file" name="file" accept=".csv" required />
+            <button type="submit">Train Model</button>
+        </form>
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+    </div>
+    <div class="links">
+        <a href="/">← Back to Home</a>
+    </div>
+</div>
+</body>
+</html>
