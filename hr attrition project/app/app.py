@@ -1064,6 +1064,8 @@ def train_model_from_df(df):
         raise ValueError(f"Missing required columns: {', '.join(missing)}")
 
     df = df.copy()
+
+    # ---------- OVERTIME ----------
     if "OverTime" in df.columns:
         overtime_values = _normalize_overtime(df["OverTime"])
         if any(value is None for value in overtime_values):
@@ -1072,18 +1074,23 @@ def train_model_from_df(df):
     else:
         hours_required = {"HoursPerDay", "HoursPerWeek"}
         if hours_required.issubset(df.columns):
-            df["OverTime"] = ((df["HoursPerDay"] > 8) | (df["HoursPerWeek"] > 40)).astype(int)
+            df["OverTime"] = (
+                (df["HoursPerDay"] > 8) |
+                (df["HoursPerWeek"] > 40)
+            ).astype(int)
         else:
             raise ValueError(
                 "Provide OverTime column or both HoursPerDay and HoursPerWeek columns."
             )
 
+    # ---------- ATTRITION ----------
     attrition_values = _normalize_attrition(df["Attrition"])
     if any(value is None for value in attrition_values):
         raise ValueError("Attrition column must contain Yes/No, Leave/Stay, or 1/0 values.")
 
     df["Attrition"] = attrition_values
 
+    # ---------- TRAIN ----------
     training_features = ["Age", "MonthlyIncome", "OverTime"]
     X = df[training_features]
     y = df["Attrition"]
@@ -1091,10 +1098,14 @@ def train_model_from_df(df):
     local_scaler = StandardScaler()
     X_scaled = local_scaler.fit_transform(X)
 
-    local_model = LogisticRegression(max_iter=1000, class_weight="balanced")
+    local_model = LogisticRegression(
+        max_iter=1000,
+        class_weight="balanced"
+    )
     local_model.fit(X_scaled, y)
 
-    return local_model, local_scaler, training_features
+    # ✅ RETURN FOUR VALUES (IMPORTANT)
+    return local_model, local_scaler, training_features, df
 
 # =====================================================
 # HOME PAGE — MODE SELECTION
