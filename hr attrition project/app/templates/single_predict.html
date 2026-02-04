@@ -3,69 +3,183 @@
 <head>
     <title>Single Employee Prediction</title>
     <style>
+        :root {
+            --bg: #e8f0ff;
+            --accent: #2563eb;
+            --accent-strong: #1d4ed8;
+            --accent-soft: rgba(37, 99, 235, 0.12);
+            --text: #0f172a;
+            --muted: #556070;
+            --card: #f8faff;
+            --border: #e6eaf2;
+            --shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: #0d1117;
-            color: white;
-            padding: 40px;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
         }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 24px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
         .box {
-            max-width: 420px;
-            margin: auto;
-            background: #161b22;
-            padding: 30px;
-            border-radius: 14px;
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 36px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            animation: floatUp 0.7s ease both;
         }
+
         label {
             display: block;
-            margin-top: 15px;
+            margin-top: 16px;
+            font-weight: 600;
         }
+
         input, button {
             width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            border-radius: 8px;
-            border: none;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 12px;
+            border: 1px solid #cbd5f5;
+            background: #ffffff;
+            color: var(--text);
         }
+
         button {
-            margin-top: 25px;
-            background: #238636;
-            color: white;
+            margin-top: 24px;
+            background: var(--accent);
+            border: none;
+            color: #ffffff;
             font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
+        p {
+            color: var(--muted);
+        }
+
         a {
             display: block;
             margin-top: 20px;
             text-align: center;
-            color: #58a6ff;
+            color: var(--accent);
             text-decoration: none;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+        }
+
+        @keyframes floatUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>👤 Single Employee Attrition Prediction</h2>
+<div class="page">
+    <div class="nav">
+        <div class="brand">ApexHR Analytics</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/train">Train Model</a>
+            <a href="/batch_predict">Batch Prediction</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </div>
 
-    <form action="/predict" method="POST">
+    <div class="box">
+        <h2>Single Employee Prediction</h2>
+        <p>Provide the employee details to generate an individual attrition forecast.</p>
 
-        <label>Age</label>
-        <input type="number" name="age" required>
+        <form action="/predict" method="POST">
 
-        <label>Monthly Income</label>
-        <input type="number" name="income" required>
+            <label>Age</label>
+            <input type="number" name="age" required>
 
-        <label>Hours Worked Per Day</label>
-        <input type="number" name="hours_day" step="0.5" required>
+            <label>Monthly Income</label>
+            <input type="number" name="income" required>
 
-        <label>Hours Worked Per Week</label>
-        <input type="number" name="hours_week" step="1" required>
+            <label>Hours Worked Per Day</label>
+            <input type="number" name="hours_day" step="0.5" required>
 
-        <button type="submit">🔍 Predict</button>
-    </form>
+            <label>Hours Worked Per Week</label>
+            <input type="number" name="hours_week" step="1" required>
 
-    <a href="/">⬅ Back to Home</a>
+            <button type="submit">Predict Risk</button>
+        </form>
+
+        <a href="/">← Back to Home</a>
+    </div>
+
+    <div class="footer">Fast individual scoring for HR partners and managers.</div>
 </div>
 
 </body>

@@ -2,24 +2,157 @@
 <html>
 <head>
     <title>Batch Prediction Result</title>
+    <style>
+        :root {
+            --bg: #e8f0ff;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.12);
+            --text: #0f172a;
+            --muted: #556070;
+            --card: #f8faff;
+            --border: #e6eaf2;
+            --shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 24px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .container {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 36px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            animation: floatUp 0.7s ease both;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: #f8faff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .table {
+            margin-top: 16px;
+            overflow: auto;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body style="background:#0d1117;color:white;font-family:Segoe UI;padding:40px">
+<body>
+<div class="page">
+    <div class="nav">
+        <div class="brand">ApexHR Analytics</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/train">Train Model</a>
+            <a href="/single">Single Prediction</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </div>
 
-<h2>📊 Company Attrition Summary</h2>
+    <div class="container">
+        <h2>Company Attrition Summary</h2>
 
-<ul>
-    <li>Total Employees Analyzed: <b>{{ total }}</b></li>
-    <li style="color:#f85149">Likely to Leave: <b>{{ leave_count }}</b></li>
-    <li style="color:#3fb950">Likely to Stay: <b>{{ stay_count }}</b></li>
-</ul>
+        <div class="summary">
+            <div class="card">
+                Total Employees Analyzed
+                <strong>{{ total }}</strong>
+            </div>
+            <div class="card">
+                Likely to Leave
+                <strong>{{ leave_count }}</strong>
+            </div>
+            <div class="card">
+                Likely to Stay
+                <strong>{{ stay_count }}</strong>
+            </div>
+        </div>
 
-<h3>📈 Attrition Risk by Age Group</h3>
-{{ stage_summary|safe }}
+        <h3>Attrition Risk by Age Group</h3>
+        <div class="table">
+            {{ stage_summary|safe }}
+        </div>
 
-<h3>👥 Sample Employee Predictions</h3>
-{{ table|safe }}
+        <h3>Sample Employee Predictions</h3>
+        <div class="table">
+            {{ table|safe }}
+        </div>
 
-<a href="/batch_predict" style="color:#58a6ff">⬅ Upload Another File</a>
+        <a href="/batch_predict">← Upload Another File</a>
+    </div>
 
+    <div class="footer">Batch scoring for workforce-wide insights.</div>
+</div>
 </body>
 </html>

@@ -3,19 +3,68 @@
 <head>
     <title>Employee Attrition Explanation</title>
     <style>
+        :root {
+            --bg: #e8f0ff;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.12);
+            --text: #0f172a;
+            --muted: #556070;
+            --card: #f8faff;
+            --border: #e6eaf2;
+            --shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: #0d1117;
-            color: #e6edf3;
-            padding: 40px;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 24px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
         }
 
         .box {
-            max-width: 520px;
-            margin: auto;
-            background: #161b22;
-            padding: 30px;
-            border-radius: 14px;
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 36px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            animation: floatUp 0.7s ease both;
         }
 
         h2 {
@@ -34,76 +83,129 @@
             margin-bottom: 20px;
         }
 
-        .high { color: #f85149; }
-        .medium { color: #f0883e; }
-        .low { color: #3fb950; }
+        .high { color: #dc2626; }
+        .medium { color: #f59e0b; }
+        .low { color: #16a34a; }
 
         ul {
             line-height: 1.8;
         }
 
         .card {
-            background: #0d1117;
-            padding: 15px;
-            border-radius: 10px;
+            background: #f8faff;
+            border: 1px solid var(--border);
+            padding: 18px;
+            border-radius: 16px;
             margin-top: 20px;
         }
 
-        a {
-            display: block;
+        .actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .actions a,
+        .actions button {
+            display: inline-block;
             text-align: center;
-            margin-top: 25px;
-            color: #58a6ff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: 600;
             text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .primary {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .secondary {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>📊 Employee Attrition Result</h2>
-
-    <p class="status">{{ result }}</p>
-
-    <p class="risk {{ risk_level|lower }}">
-        Risk Level: {{ risk_level }}
-    </p>
-
-    <div class="card">
-        <h3>❓ Why this prediction?</h3>
-        <ul>
-            {% for reason in reasons %}
-            <li>{{ reason }}</li>
-            {% endfor %}
-        </ul>
+<div class="page">
+    <div class="nav">
+        <div class="brand">ApexHR Analytics</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/single">Single Prediction</a>
+            <a href="/batch_predict">Batch Prediction</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
     </div>
 
-    <div class="card">
-        <h3>👤 Employee Details</h3>
-        <p><strong>Age:</strong> {{ age }}</p>
-        <p><strong>Monthly Income:</strong> ₹{{ income }}</p>
-        <p><strong>OverTime:</strong> {{ overtime }}</p>
+    <div class="box">
+        <h2>Employee Attrition Result</h2>
+
+        <p class="status">{{ result }}</p>
+
+        <p class="risk {{ risk_level|lower }}">
+            Risk Level: {{ risk_level }}
+        </p>
+
+        <div class="card">
+            <h3>Why this prediction?</h3>
+            <ul>
+                {% for reason in reasons %}
+                <li>{{ reason }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Employee Details</h3>
+            <p><strong>Age:</strong> {{ age }}</p>
+            <p><strong>Monthly Income:</strong> ₹{{ income }}</p>
+            <p><strong>OverTime:</strong> {{ overtime }}</p>
+        </div>
+
+        <div class="actions">
+            <a href="/dashboard" class="primary">View HR Dashboard</a>
+            <a href="/" class="secondary">Check Another Employee</a>
+        </div>
+
+        <form action="/what_if" method="POST" class="actions">
+            <input type="hidden" name="age" value="{{ age }}">
+            <input type="hidden" name="income" value="{{ income }}">
+            <input type="hidden" name="hours_day" value="{{ hours_day }}">
+            <input type="hidden" name="hours_week" value="{{ hours_week }}">
+            <button class="secondary" type="submit">What if we reduce working hours?</button>
+        </form>
+
+        <form action="/what_if_salary" method="POST" class="actions">
+            <input type="hidden" name="age" value="{{ age }}">
+            <input type="hidden" name="income" value="{{ income }}">
+            <input type="hidden" name="hours_day" value="{{ hours_day }}">
+            <input type="hidden" name="hours_week" value="{{ hours_week }}">
+            <button class="secondary" type="submit">What if salary is increased?</button>
+        </form>
     </div>
 
-    <a href="/dashboard">📊 View HR Dashboard</a>
-    <a href="/">🔁 Check Another Employee</a>
+    <div class="footer">Powered by data-driven attrition modeling.</div>
 </div>
-<form action="/what_if" method="POST">
-    <input type="hidden" name="age" value="{{ age }}">
-    <input type="hidden" name="income" value="{{ income }}">
-    <input type="hidden" name="hours_day" value="{{ hours_day }}">
-    <input type="hidden" name="hours_week" value="{{ hours_week }}">
-
-    <button style="margin-top:15px; width:100%; padding:10px;">
-        🔮 What if we reduce working hours?
-    </button>
-</form>
-<form action="/what_if_salary" method="POST">
-  <input type="hidden" name="age" value="{{ age }}">
-  <input type="hidden" name="income" value="{{ income }}">
-  <input type="hidden" name="hours_day" value="{{ hours_day }}">
-  <input type="hidden" name="hours_week" value="{{ hours_week }}">
-  <button>💰 What if salary is increased?</button>
-</form>
 </body>
 </html>
